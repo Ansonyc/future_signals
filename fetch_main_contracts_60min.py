@@ -8,7 +8,6 @@
 import akshare as ak
 import pandas as pd
 import numpy as np
-import talib
 import time
 import os
 from datetime import datetime
@@ -190,11 +189,30 @@ class MainContractDataFetcher:
 
         return position_size, multiplier, "OK"
 
+    def calculate_atr(self, df, period):
+        """
+        计算 ATR (Average True Range) - 纯 Python 实现
+
+        ATR 计算公式：
+        1. True Range (TR) = max(high - low, abs(high - prev_close), abs(low - prev_close))
+        2. ATR = TR 的指数移动平均
+        """
+        # 计算 True Range
+        high_low = df['high'] - df['low']
+        high_close = np.abs(df['high'] - df['close'].shift(1))
+        low_close = np.abs(df['low'] - df['close'].shift(1))
+
+        true_range = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
+
+        # 计算 ATR (使用指数移动平均)
+        atr = true_range.ewm(span=period, adjust=False).mean()
+
+        return atr
+
     def calculate_indicators(self, df):
         """计算技术指标"""
         # ATR
-        df['ATR'] = talib.ATR(df['high'], df['low'], df['close'],
-                             timeperiod=self.strategy_config['atr_period'])
+        df['ATR'] = self.calculate_atr(df, self.strategy_config['atr_period'])
 
         # HHV - 最高价的最高值
         df['HHV_entry'] = df['high'].rolling(window=self.strategy_config['hhv_entry_period']).max()
