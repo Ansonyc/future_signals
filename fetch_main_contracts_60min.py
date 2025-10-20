@@ -28,8 +28,8 @@ class MainContractDataFetcher:
             'hhv_entry_period': 20,  # 入场HHV周期
             'llv_stop_period': 10,   # LLV止损周期
             'atr_period': 20,
-            'stop_loss_atr': 2,
-            'take_profit_atr': 4.0,
+            'stop_loss_atr': 1.5,
+            'take_profit_atr': 2.0,
             'max_loss_per_trade': 500,  # 每笔交易最大亏损
         }
 
